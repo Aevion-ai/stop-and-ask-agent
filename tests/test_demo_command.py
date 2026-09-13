@@ -47,3 +47,18 @@ def test_demo_command_creates_requested_evidence_directory(tmp_path):
 
     assert json.loads(result.stdout)["replay"]["ok"] is True
     assert (state_dir / "strands_spike_001_receipts.jsonl").is_file()
+
+
+def test_approved_flow_can_isolate_its_committed_artifact(tmp_path):
+    """A caller-supplied output directory prevents a demo from touching repo output."""
+    from app.agent import StopAndAskFlow
+
+    state_dir = tmp_path / "receipts"
+    output_dir = tmp_path / "generated-output"
+    flow = StopAndAskFlow(state_dir=state_dir, output_dir=output_dir)
+    flow.human_decision = "APPROVE"
+    flow.decision_event.set()
+
+    result = flow.run()
+    assert result["stage"] == "RECEIPT_VERIFIED"
+    assert (output_dir / "status.md").is_file()

@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-SKELETON = ROOT.parent / "SUBMISSION_SKELETON.md"
+LOCAL_SUBMISSION_MATERIALS = ROOT / "devpost-submission.md"
 PUBLIC_REPOSITORY_URL = "https://github.com/S-Leishman/stop-and-ask-agent"
 PUBLIC_VIDEO_URL = "https://youtu.be/1OWtgAbUzJY"
 
@@ -22,10 +22,10 @@ def competition_twin() -> dict:
         "deadline": "2026-09-14T17:00:00-07:00",
         "gates": [
             _gate(
-                "SUBMISSION_SKELETON",
-                "PASS" if SKELETON.is_file() else "FAIL",
-                "submission contract is locally present" if SKELETON.is_file() else "submission contract missing",
-                str(SKELETON),
+                "LOCAL_SUBMISSION_MATERIALS",
+                "PASS" if LOCAL_SUBMISSION_MATERIALS.is_file() else "FAIL",
+                "local Devpost submission copy is present" if LOCAL_SUBMISSION_MATERIALS.is_file() else "local Devpost submission copy missing",
+                str(LOCAL_SUBMISSION_MATERIALS),
             ),
             _gate(
                 "ARCHITECTURE",
@@ -57,11 +57,17 @@ def competition_twin() -> dict:
                 "local Devpost fields are drafted" if (ROOT / "DEVPOST_ENTRY.md").is_file() else "Devpost shell missing",
                 "DEVPOST_ENTRY.md",
             ),
+            _gate(
+                "DEVPOST_SUBMISSION",
+                "UNKNOWN",
+                "The public project is published, but the final submission record has not been independently verified.",
+                "External Devpost state; no local receipt establishes submitted_at.",
+            ),
         ],
         "next_required_effect": {
-            "effect": "ATTACH_ARCHITECTURE_TO_DEVPOST",
+            "effect": "VERIFY_DEVPOST_SUBMISSION",
             "verdict": "UNKNOWN",
-            "human_required": True,
-            "reason": "the architecture asset exists and must be attached to the required Devpost field",
+            "human_required": False,
+            "reason": "read the authoritative Devpost submission record before any public submission action.",
         },
     }

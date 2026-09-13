@@ -8,11 +8,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from app.agent import StopAndAskFlow
+from app.compliance_agent import ProfessionalComplianceFlow
 from app.competition_twin import competition_twin
 from app.receipts import ReceiptChain
 
 ROOT = Path(__file__).resolve().parent
 flow: StopAndAskFlow | None = None
+compliance_flow: ProfessionalComplianceFlow | None = None
 chain = ReceiptChain(ROOT / "data" / "strands_spike_001_receipts.jsonl")
 
 
@@ -34,13 +36,23 @@ class Handler(BaseHTTPRequestHandler):
             active_chain = flow.chain if flow else chain
             ok, why = active_chain.verify()
             self._send(200, json.dumps({"ok": ok, "why": why}).encode())
+        elif self.path == "/api/compliance/state":
+            snap = compliance_flow.snapshot() if compliance_flow else {"stage": "IDLE"}
+            self._send(200, json.dumps(snap).encode())
+        elif self.path == "/api/compliance/replay":
+            if compliance_flow and compliance_flow.chain:
+                ok, why = compliance_flow.chain.verify()
+            else:
+                c = ReceiptChain(ROOT / "data" / "compliance_audit_receipts.jsonl")
+                ok, why = c.verify()
+            self._send(200, json.dumps({"ok": ok, "why": why}).encode())
         elif self.path == "/api/competition-twin":
             self._send(200, json.dumps(competition_twin()).encode())
         else:
             self._send(404, b'{"error":"not found"}')
 
     def do_POST(self):
-        global flow, chain
+        global flow, chain, compliance_flow
         length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(length) if length else b"{}"
         if self.path == "/start":
@@ -52,6 +64,14 @@ class Handler(BaseHTTPRequestHandler):
             flow.human_decision = "APPROVE" if self.path == "/approve" else "DENY"
             flow.decision_event.set()
             self._send(200, json.dumps({"decision": flow.human_decision}).encode())
+        elif self.path == "/api/compliance/start":
+            compliance_flow = ProfessionalComplianceFlow()
+            threading.Thread(target=compliance_flow.run, daemon=True).start()
+            self._send(200, json.dumps({"started": True, "stage": "INGESTING_REQUIREMENTS"}).encode())
+        elif self.path in ("/api/compliance/approve", "/api/compliance/deny") and compliance_flow:
+            compliance_flow.human_decision = "APPROVE" if self.path == "/api/compliance/approve" else "DENY"
+            compliance_flow.decision_event.set()
+            self._send(200, json.dumps({"decision": compliance_flow.human_decision}).encode())
         else:
             self._send(404, b'{"error":"not found"}')
 

@@ -1,3 +1,3 @@
-"""Vercel Python entrypoint for the working VetProof authorization surface."""
+"""Vercel Python entrypoint for the TinyVerdicts authorization surface."""
 
 from server import Handler as handler

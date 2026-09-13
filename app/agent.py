@@ -30,11 +30,11 @@ def runtime_state_root() -> Path:
 class StopAndAskFlow:
     """One demo run: six visible stages, blocking at the human boundary."""
 
-    def __init__(self, state_dir: Path | None = None):
+    def __init__(self, state_dir: Path | None = None, output_dir: Path | None = None):
         runtime_root = runtime_state_root()
         default_receipts = runtime_root / "receipts" if os.environ.get("VERCEL") else ROOT / "data"
         self.state_dir = state_dir or default_receipts
-        self.output_dir = runtime_root / "output"
+        self.output_dir = Path(output_dir) if output_dir is not None else runtime_root / "output"
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self.chain = ReceiptChain(self.state_dir / "strands_spike_001_receipts.jsonl")
         self.parent = AuthorityContract(
@@ -61,6 +61,14 @@ class StopAndAskFlow:
         with self.lock:
             self.stage = stage
             self.detail = detail
+
+    @staticmethod
+    def _artifact_label(path: Path) -> str:
+        """Use a stable label when a caller isolates output outside this checkout."""
+        try:
+            return str(path.relative_to(ROOT))
+        except ValueError:
+            return f"caller-output/{path.name}"
 
     @staticmethod
     def _authority_ref(contract: AuthorityContract) -> dict:
@@ -157,14 +165,14 @@ class StopAndAskFlow:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         out_path = self.output_dir / "status.md"
         out_path.write_text(draft, encoding="utf-8")
-        self._set("EFFECT_COMMITTED", wrote=str(out_path.relative_to(ROOT)),
+        self._set("EFFECT_COMMITTED", wrote=self._artifact_label(out_path),
                   bytes=len(draft.encode()))
 
         # 6. RECEIPT SIGNED + REPLAY VERIFIED.
         receipt = self.chain.append({
             "action": "COMMIT_OUTPUT", "outcome": "COMMITTED_AFTER_HUMAN_APPROVAL",
             "proposed_by": "agent:stop-and-ask", "decided_by": "human:scott",
-            "artifact": str(out_path.relative_to(ROOT)), "artifact_sha256": sha(out_path.read_bytes()),
+            "artifact": self._artifact_label(out_path), "artifact_sha256": sha(out_path.read_bytes()),
             "tiny_verdict": self._tiny_verdict(
                 proposed, "PASS", "COMMITTED_AFTER_HUMAN_APPROVAL", "APPROVE"),
             "ts": datetime.now(timezone.utc).isoformat()})

@@ -1,6 +1,6 @@
-# VetProof demo video package
+# TinyVerdicts demo video package
 
-`VetProof_Agents_for_Humans_demo.mp4` is a local, no-audio screen-recording
+`TinyVerdicts_Agents_for_Humans_demo.mp4` is a local, no-audio screen-recording
 package for the Agents for Humans Hackathon. It is 92 seconds, 1280×720, and
 uses only real local UI captures, the rendered architecture, and factual
 product copy. SHA-256:

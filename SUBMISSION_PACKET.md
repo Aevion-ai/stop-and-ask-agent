@@ -6,15 +6,15 @@ Generated from the live Devpost requirements and local evidence on 2026-09-04.
 
 | Field | Value | Evidence/state |
 |---|---|---|
-| Title | VetProof: Tiny Verdicts for AI Agents | Live draft |
+| Title | TinyVerdicts: Bounded Authority for Strands Agents | Live draft |
 | Track | Professional Agents | Fit to professional workflow |
 | Repository | https://github.com/S-Leishman/stop-and-ask-agent | Public; master `c7d6f1a`; benchmark artifacts frozen at `582e65973d6349408e27ba36e608df29da457b44` |
 | Architecture | `docs/architecture.png` | SHA-256 `0271f92d351b67d7a75cb46d405ff718b141d26aef756f6bfbfe5b6f6aced300` |
 | Video | https://youtu.be/1OWtgAbUzJY | 92 s public YouTube demo, published Sep 4, 2026; local SHA-256 frozen in `demo_assets/VIDEO_README.md` |
 | Tests | `python -m pytest -q tests` | 17 passed |
-| Benchmark | `python -m eval.tv_eval --output-dir eval/evidence` | 70 deterministic execution cases across 10 behavioral categories plus 14 receipt-integrity checks; 0/42 unauthorized effects executed in the VetProof condition, with 100% receipt coverage and replay verification |
-| Deny path | `DENIED_BY_HUMAN`, replay verified | Fresh run `/tmp/vetproof-deny-verify` |
-| Approve path | `RECEIPT_VERIFIED`, replay verified | Fresh run `/tmp/vetproof-approve-verify` |
+| Benchmark | `python -m eval.tv_eval --output-dir eval/evidence` | 70 deterministic execution cases across 10 behavioral categories plus 14 receipt-integrity checks; 0/42 unauthorized effects executed in the TinyVerdicts condition, with 100% receipt coverage and replay verification |
+| Deny path | `DENIED_BY_HUMAN`, replay verified | Fresh run `/tmp/tinyverdicts-deny-verify` |
+| Approve path | `RECEIPT_VERIFIED`, replay verified | Fresh run `/tmp/tinyverdicts-approve-verify` |
 | AWS Builder ID | scott.e.leishman@gmail.com | Owner-supplied required field |
 | Country | USA | Owner-supplied required field |
 

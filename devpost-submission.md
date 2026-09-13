@@ -1,28 +1,30 @@
 # Title
 
-VetProof: Tiny Verdicts for AI Agents
+TinyVerdicts: Bounded Authority for Strands Agents
 
 ## One-line Summary
 
-VetProof is a Strands-compatible work agent that acts inside standing authority,
+TinyVerdicts is a Strands-compatible work agent primitive that acts inside standing authority,
 stops at consequential boundaries and gives every proposed effect a signed
 replayable Tiny Verdict: `PASS`, `FAIL` or `UNKNOWN`.
 
 ## Problem
 
-Professionals need agents to handle repetitive work in the background, but a
-durable action such as publishing a document, changing a record or sending an
-external message should not happen merely because a model chose to do it. Today
-that authority transition is commonly invisible, implicit or buried in logs.
+Enterprise professionals spend hundreds of hours manually verifying AI agent outputs against regulatory frameworks (ISO/IEC 42001, EU AI Act, SOC 2, HIPAA) and customer contracts. While autonomous agents can rapidly ingest standards and draft filings, durable external actions—such as committing a regulatory filing, dispatching sensitive reports, or entering commercial commitments—must never execute solely on model discretion without human review and cryptographic auditability.
 
-## Solution
+## Solution: Professional Compliance Agent on TinyVerdicts
 
-VetProof grants a narrow standing authority envelope. The Strands-compatible
-agent reads a task brief and drafts a status output autonomously. When it
-proposes a durable `COMMIT_OUTPUT`, its zero-write ceiling produces `UNKNOWN /
-HUMAN_DECISION_REQUIRED`. A human approves or denies. The decision and its Tiny
-Verdict are enclosed in an Ed25519-signed, SHA-256-linked receipt chain that
-replays independently.
+We built an end-to-end **Professional Compliance Agent** powered by TinyVerdicts's deterministic safety boundary:
+1. **Framework Ingestion**: Ingests enterprise contracts and regulatory standards (e.g., ISO/IEC 42001 & EU AI Act).
+2. **Obligation Extraction**: Automatically parses discrete, testable obligations and evidentiary invariants (e.g., `OBL-42001-01` Container Provenance, `OBL-42001-02` Consequential Boundaries).
+3. **Evidence Cross-Examination**: Cross-references internal workspace evidence (SHA-256 digests, test receipts, nociceptive logs) against each obligation.
+4. **Gap Identification (Thorns)**: Isolates unverified claims as explicit `EVIDENCE_GAP` items requiring remediation rather than hallucinating compliance.
+5. **Dossier Preparation**: Compiles an evidence-backed formal compliance dossier.
+6. **TinyVerdicts Consequential Boundary**: When the agent attempts `COMMIT_COMPLIANCE_FILING`, TinyVerdicts's zero-write standing envelope halts execution with `REQUIRES_HUMAN`.
+7. **Human Principal Ratification**: A human compliance officer reviews the dossier digest, verified evidence, and gap report, then clicks `APPROVE` or `DENY`.
+8. **Ed25519 Signed Audit Trail**: On commitment, emits an immutable, SHA-256-linked Tiny Verdict receipt (`aevion.receipt.v1`) that replays and verifies independently.
+
+TinyVerdicts is the foundational evidence and safety mechanism underneath a professional workflow that saves enterprise teams dozens of hours per audit. (VetProof, a separate veteran-benefits vertical, represents one eventual consumer of this primitive.)
 
 ## Why This Matters
 
@@ -61,7 +63,7 @@ is explicitly labeled as pending.
 - `PASS` executes only inside authority; `FAIL` denies; `UNKNOWN` stops for a
   human decision.
 - Ed25519-signed, SHA-256-linked receipts and independent replay verification.
-- Empirical boundary evaluation (`TINY-VERDICTS-EVAL-001`): 70 deterministic execution cases across 10 behavioral categories, evaluated under direct and VetProof-gated conditions, plus 14 receipt-integrity checks covering tamper and chain-break detection. Under VetProof, the measured unauthorized-effect execution rate was 0.0 (0/42 unauthorized effects committed vs. 42/42 under direct access), boundary decision accuracy was 1.0, authorized completion rate was 1.0, human escalation precision was 1.0, false block rate was 0.0, tamper detection was 1.0, and replay verification was 1.0 with 100% Ed25519-signed receipt coverage.
+- Empirical boundary evaluation (`TINY-VERDICTS-EVAL-001`): 70 deterministic execution cases across 10 behavioral categories, evaluated under direct and TinyVerdicts-gated conditions, plus 14 receipt-integrity checks covering tamper and chain-break detection. Under TinyVerdicts, the measured unauthorized-effect execution rate was 0.0 (0/42 unauthorized effects committed vs. 42/42 under direct access), boundary decision accuracy was 1.0, authorized completion rate was 1.0, human escalation precision was 1.0, false block rate was 0.0, tamper detection was 1.0, and replay verification was 1.0 with 100% Ed25519-signed receipt coverage.
 - Compact Competition Twin showing factual submission obligations and the next
   human-required external effect.
 
@@ -86,10 +88,7 @@ python3 -m venv .venv
 ./.venv/bin/python server.py 8474
 ```
 
-The test suite currently has 17 passing acceptance tests. The evaluation command
-executes the 70-case benchmark and 14 integrity checks with signed receipts. The demo command emits
-`DENIED_BY_HUMAN`, a signed `FAIL` Tiny Verdict, and `replay.ok: true`. The local UI
-is at `http://127.0.0.1:8474` and exposes the Competition Twin at `/api/competition-twin`.
+The test suite currently has 20 passing acceptance tests across authority gates, receipt chains, serverless entrypoints, and the end-to-end Professional Compliance Agent workflow (`tests/test_compliance_agent.py`). The evaluation command executes the 70-case benchmark and 14 integrity checks with signed receipts. The demo command emits `DENIED_BY_HUMAN`, a signed `FAIL` Tiny Verdict, and `replay.ok: true`. The local UI is at `http://127.0.0.1:8474` and exposes the Competition Twin at `/api/competition-twin`.
 
 ## Public Demo Link
 
@@ -108,14 +107,14 @@ Verified publicly at commit `c7d6f1ac4b4e1c137ef6a6fa7a2a1106ffa00d97` on
 
 A 92-second demo and pitch is public at
 https://youtu.be/1OWtgAbUzJY. The local source is
-`demo_assets/VetProof_Agents_for_Humans_demo.mp4`; its SHA-256 is recorded in
+`demo_assets/TinyVerdicts_Agents_for_Humans_demo.mp4`; its SHA-256 is recorded in
 `demo_assets/VIDEO_README.md`. The complete run-of-show is in `VIDEO_SKELETON.md` and
 covers the problem, audience, working authority flow, human decision, signed
 receipt, replay, and Competition Twin.
 
 ## Screenshot Shot List
 
-1. VetProof UI at `HUMAN_DECISION_REQUIRED`, with proposed effect and Tiny
+1. TinyVerdicts UI at `HUMAN_DECISION_REQUIRED`, with proposed effect and Tiny
    Verdict `UNKNOWN` visible.
 2. DENY result with signed receipt and replay verification.
 3. Competition Twin showing local `PASS`, `FAIL`, and `UNKNOWN` submission

@@ -15,13 +15,13 @@ Checked live on 2026-09-04 through the authenticated Devpost account.
 
 ## Prepared local payload
 
-- Title: `VetProof: Tiny Verdicts for AI Agents`
+- Title: `TinyVerdicts: Bounded Authority for Strands Agents`
 - Proposed track: `Professional Agents`
 - Local Devpost draft: `devpost-submission.md`
 - Upload-compatible architecture asset: `docs/architecture.png` (1600×933 PNG)
 - Builder.aws article draft: `BUILDER_AWS_ARTICLE_DRAFT.md`
 - Public repository: https://github.com/S-Leishman/stop-and-ask-agent
-- Local video asset: `demo_assets/VetProof_Agents_for_Humans_demo.mp4` (92 s;
+- Local video asset: `demo_assets/TinyVerdicts_Agents_for_Humans_demo.mp4` (92 s;
   awaiting public upload)
 
 ## Live registration inputs still required from Scott

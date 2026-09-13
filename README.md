@@ -1,4 +1,4 @@
-# VetProof, powered by Tiny Verdicts
+# TinyVerdicts: Bounded Authority for Strands Agents
 
 ## Stop-and-Ask Agent, an agent that works autonomously and stops at the boundary
 
@@ -58,7 +58,7 @@ thing as an observed result. The same separation is useful for an AI agent:
 request → authority check → clearance → execution → observation → readback
 ```
 
-This is an analogy to control procedures, not a claim that VetProof is an FAA
+This is an analogy to control procedures, not a claim that TinyVerdicts is an FAA
 system. The existing Aviation Membranes work provides a useful SHELL-style way
 to classify failures. A software or model mismatch is different from a human
 communication problem and both are different from an environmental state
@@ -108,14 +108,14 @@ Deterministic evaluation and benchmark (no keys, no network):
 
 ```bash
 ./.venv/bin/python -m eval.tv_eval --output-dir eval/evidence
-# TINY-VERDICTS-EVAL-001 contains 70 deterministic execution cases across 10 behavioral categories, evaluated under direct and VetProof-gated conditions, plus 14 receipt-integrity checks covering tamper and chain-break detection.
+# TINY-VERDICTS-EVAL-001 contains 70 deterministic execution cases across 10 behavioral categories, evaluated under direct and TinyVerdicts-gated conditions, plus 14 receipt-integrity checks covering tamper and chain-break detection.
 # Full empirical comparison and signed receipt chains in eval/evidence/.
 ```
 
 One-command evidence run (no keys, no network):
 
 ```bash
-./.venv/bin/python demo.py --decision deny --state-dir /tmp/vetproof-demo
+./.venv/bin/python demo.py --decision deny --state-dir /tmp/tinyverdicts-demo
 # emits a FAIL Tiny Verdict, Ed25519-signed receipt, and replay: {"ok": true}
 ```
 

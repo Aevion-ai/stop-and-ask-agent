@@ -15,7 +15,7 @@ def main() -> None:
     args = parser.parse_args()
 
     args.state_dir.mkdir(parents=True, exist_ok=True)
-    flow = StopAndAskFlow(state_dir=args.state_dir)
+    flow = StopAndAskFlow(state_dir=args.state_dir, output_dir=args.state_dir / "output")
     flow.human_decision = args.decision.upper()
     flow.decision_event.set()
     evidence = flow.run()
