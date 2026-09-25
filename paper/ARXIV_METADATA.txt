@@ -1,0 +1,13 @@
+Title: Stop-and-Ask Agents: Separating Capability, Authority, and Realized Effects with Replayable Receipts
+Authors: Scott E. Leishman
+Affiliation: Aevion LLC
+Contact: scott@aevion.ai
+Primary Category: cs.AI (Artificial Intelligence)
+Secondary Categories: cs.SE (Software Engineering), cs.CR (Cryptography and Security)
+License: http://creativecommons.org/licenses/by/4.0/
+Comments: 4 pages, 2 tables, systems technical report. Public reference implementation at https://github.com/Aevion-ai/stop-and-ask-agent
+Report Number: AEVION-TR-2026-001
+ACM Classification: I.2.11 (Distributed Artificial Intelligence - Multiagent Systems); D.4.6 (Security and Protection - Access controls); K.6.5 (Security and Protection)
+
+Abstract:
+Tool-using AI agents can prepare useful work while also being able to request consequential effects such as durable writes, submissions, spending, or credential changes. This systems report evaluates a narrow separation: an agent's capability to propose an effect is not treated as authority to commit it. [IMPLEMENTED] We implement an external deterministic authority gate, monotonic authority envelopes, an explicit human decision boundary for effects outside the standing envelope, and Ed25519-signed, SHA-256-linked receipts with replay verification. [EMPIRICAL] In a deterministic fixture evaluation, TINY-VERDICTS-EVAL-001 executes 70 cases under direct tool access and the same 70 cases under the gated condition, plus 14 receipt-integrity checks. Under the evaluated policy corpus, 42/42 unauthorized attempted effects commit under direct access and 0/42 commit under the gated condition; authorized completion is 100%, false-block rate is 0%, and receipt coverage, tamper detection, and replay verification are each 100% in the gated fixtures. A separate recorded Bedrock run reached the human-decision boundary, was denied, committed no durable effect, and replayed successfully. [DO NOT CLAIM] These results do not establish general agent safety, universal containment, or legal non-repudiation. They establish behavior only for the implemented mechanism and evaluated scope.

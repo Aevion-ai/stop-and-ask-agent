@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software or cite the underlying systems report, please cite it as below."
+title: "Stop-and-Ask Agent: Bounded Authority and Replayable Evidence for Autonomous Agents"
+authors:
+  - family-names: "Leishman"
+    given-names: "Scott E."
+    affiliation: "Aevion LLC"
+version: 0.1.0
+date-released: 2026-09-25
+url: "https://github.com/Aevion-ai/stop-and-ask-agent"
+repository-code: "https://github.com/Aevion-ai/stop-and-ask-agent"
+keywords:
+  - "autonomous agents"
+  - "bounded authority"
+  - "effect admission"
+  - "ed25519"
+  - "replayable receipts"
+  - "systems evaluation"
+license: "Apache-2.0"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Leishman"
+      given-names: "Scott E."
+  title: "Stop-and-Ask Agents: Separating Capability, Authority, and Realized Effects with Replayable Receipts"
+  year: 2026
+  journal: "arXiv preprint"

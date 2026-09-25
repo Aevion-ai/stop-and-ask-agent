@@ -1,6 +1,8 @@
 # TinyVerdicts: Bounded Authority for Strands Agents
 
-## Stop-and-Ask Agent, an agent that works autonomously and stops at the boundary
+## Stop-and-Ask Agent: Autonomous Until Authority Matters
+
+[📄 Systems Paper (PDF)](paper/stop-and-ask-agents.pdf) | [📦 arXiv Source Package](paper/arxiv_submission.zip) | [📊 Evaluation (TINY-VERDICTS-EVAL-001)](eval/evidence/) | [🛡️ Receipt Verifier Action](https://github.com/Aevion-ai/receipt-verifier)
 
 **The problem.** AI agents that do real work make real changes to real systems.
 The dangerous moment is not the work. It is the write that nobody explicitly

@@ -1,0 +1,169 @@
+\documentclass[10pt,twocolumn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{url}
+\usepackage{cite}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=blue!70!black,
+    urlcolor=blue!70!black
+}
+
+\newcommand{\implemented}{\textbf{[IMPLEMENTED] }}
+\newcommand{\empirical}{\textbf{[EMPIRICAL] }}
+\newcommand{\plausibledesign}{\textbf{[PLAUSIBLE DESIGN] }}
+\newcommand{\donotclaim}{\textbf{[DO NOT CLAIM] }}
+
+\title{\textbf{Stop-and-Ask Agents: Separating Capability, Authority,\\and Realized Effects with Replayable Receipts}}
+
+\author{
+  \textbf{Scott E. Leishman}\\
+  Aevion LLC\\
+  \texttt{scott@aevion.ai}
+}
+\date{September 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Tool-using AI agents can prepare useful work while also being able to request consequential effects such as durable writes, submissions, spending, or credential changes. This systems report evaluates a narrow separation: an agent's capability to propose an effect is not treated as authority to commit it. \implemented We implement an external deterministic authority gate, monotonic authority envelopes, an explicit human decision boundary for effects outside the standing envelope, and Ed25519-signed, SHA-256-linked receipts with replay verification. \empirical In a deterministic fixture evaluation, \textsc{Tiny-Verdicts-Eval-001} executes 70 cases under direct tool access and the same 70 cases under the gated condition, plus 14 receipt-integrity checks. Under the evaluated policy corpus, 42/42 unauthorized attempted effects commit under direct access and 0/42 commit under the gated condition; authorized completion is 100\%, false-block rate is 0\%, and receipt coverage, tamper detection, and replay verification are each 100\% in the gated fixtures. A separate recorded Bedrock run reached the human-decision boundary, was denied, committed no durable effect, and replayed successfully. \donotclaim These results do not establish general agent safety, universal containment, or legal non-repudiation. They establish behavior only for the implemented mechanism and evaluated scope.
+\end{abstract}
+
+\section{Problem Statement}
+\implemented Modern agent frameworks make tool invocation easy, but tool availability and effect authority are different system properties. The implementation studied here separates four states that are often collapsed in agent demos:
+\begin{equation*}
+\text{proposal} \longrightarrow \text{authority decision} \longrightarrow \text{realized effect} \longrightarrow \text{evidence receipt}
+\end{equation*}
+The model may generate a proposal. A deterministic gate evaluates the requested effect against a standing authority envelope. A durable or otherwise consequential effect can require a fresh human decision. The resulting decision and observed outcome are written into a signed receipt chain that can be replayed independently.
+
+\plausibledesign The intended use is not to eliminate human involvement or to ask a person to approve every tool call. Instead, autonomy is preserved inside an explicit envelope and human authority is concentrated at selected consequential boundaries.
+
+\donotclaim The architecture is not presented as a universal safety theorem. It does not prove that the agent is correct, that every hazardous action has been classified, or that a compromised host cannot interfere with execution.
+
+\section{System Model}
+
+\subsection{Authority contracts}
+\implemented The reference implementation represents standing authority as an immutable \texttt{AuthorityContract} containing a principal, an allowed-effect set, a maximum unattended write count, a spending ceiling, and delegation rights. Child authority is monotonically narrowed: child effects must be a subset of parent effects, numeric ceilings may only shrink, and delegation rights cannot be created by a child.
+
+For an effect $e$ and authority contract $A$, the gate returns one of three operational decisions:
+\begin{equation}
+G(A, e) \in \{\text{Allowed}, \text{RequiresHuman}, \text{Denied}\}
+\end{equation}
+\implemented Read and draft effects can remain autonomous. Explicitly destructive or prohibited effect classes are denied. Other effects outside the standing envelope are held at the human boundary.
+
+\subsection{Capability is not authority}
+\plausibledesign We use the following architectural invariant notation as a design rule rather than as a mathematical theorem:
+\begin{equation}
+\text{Model proposal} \not\Longrightarrow \text{effect authority}
+\end{equation}
+The model may influence which effect is proposed, but the authorization decision is computed outside the model from the declared contract and effect class.
+
+\subsection{Signed receipt chain}
+\implemented Each receipt body is serialized as canonical JSON (sorted keys, compact separators, UTF-8), linked to the prior receipt by SHA-256, assigned a monotonically increasing sequence number, and signed with Ed25519. The receipt contains the body digest, Base64-encoded public key, and Base64-encoded signature. Replay recomputes each digest, checks the previous-receipt pointer, reconstructs the Ed25519 public key, and verifies the signature.
+
+\empirical The frozen evidence includes negative fixtures that mutate payloads, verdicts, sequence numbers, previous-hash pointers, public keys, signatures, and digests. The recorded verifier rejects all 14 evaluated integrity failures (7 payload/signature tamper cases and 7 chain-break cases).
+
+\donotclaim The demonstration signer uses an ephemeral key. The receipt therefore establishes integrity relative to the embedded public key, not durable human identity, PIV/YubiKey attribution, or legal non-repudiation.
+
+\section{Evaluation}
+
+\subsection{Research question}
+\empirical \textsc{Tiny-Verdicts-Eval-001} asks a bounded question: \textit{does the enforcement layer prevent effects outside the evaluated authority policy while preserving authorized autonomous work?} It is not an LLM intelligence benchmark. The same deterministic corpus is run in two conditions:
+\begin{itemize}
+    \item \textbf{Condition A: Direct Tool Access.} The proposed effects execute without the authority gate.
+    \item \textbf{Condition B: Effect Gate.} Effects pass through the authority contract, human boundary, receipt chain, and replay verifier.
+\end{itemize}
+\empirical The frozen aggregate artifact reports 70 execution cases per condition (140 execution evaluations total), spanning read/draft operations, durable writes without authority, explicitly prohibited effects, delegation constraints, state drift, missing evidence, and human approve/deny paths. An additional 14 integrity checks exercise receipt tampering and broken chain links.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{Direct} & \textbf{Gated} \\
+\midrule
+Useful tasks completed & 21 & \textbf{28} \\
+Unauthorized effects attempted & 42 & 42 \\
+Unauthorized effects committed & 42 (100\%) & \textbf{0 (0\%)} \\
+Unauthorized execution rate & 100\% & \textbf{0\%} \\
+Human escalations & 0 & 28 \\
+False denials & 0 & 0 \\
+Authorized-effect completion rate & 100\% & \textbf{100\%} \\
+Receipt coverage & 0\% & \textbf{100\%} \\
+Tamper detection rate & 0\% & \textbf{100\%} \\
+Replay verification rate & 0\% & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\caption{\empirical Frozen \textsc{Tiny-Verdicts-Eval-001} aggregate results. These are deterministic fixture measurements, not estimates of production-world agent failure rates.}
+\label{tab:eval}
+\end{table}
+
+\subsection{Results}
+\empirical Within this corpus, the headline result is \textbf{0/42 unauthorized effects executed under the gated condition} versus 42/42 under direct access (Table~\ref{tab:eval}). Boundary-decision accuracy is reported as 1.0 for the gated condition, with zero false denials and 1.0 human-escalation precision.
+
+\donotclaim These percentages should not be generalized beyond the corpus. The direct condition is intentionally permissive and the gated condition is evaluated against policies encoded by the same project. The benchmark therefore demonstrates mechanism behavior and non-vacuity within its fixtures; it is not an externally validated estimate of real-world safety.
+
+\subsection{Recorded model-backed run}
+\empirical The frozen project evidence records one Amazon Bedrock run using Strands Agents 1.54.0 and \texttt{amazon.nova-micro-v1:0}. The agent reached \texttt{HUMAN\_DECISION\_REQUIRED}; the human decision was \texttt{DENY}; no durable effect committed; receipt replay verified. The recorded model-workflow latency was 18,748.935 ms.
+
+\donotclaim A single model-backed run does not establish provider independence or a general model-quality result. The control mechanism itself is deterministic and can run without a network model, but broader live-provider evaluation remains future work.
+
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Failure surface} & \textbf{Implemented response} & \textbf{Remaining boundary} \\
+\midrule
+Out-of-envelope durable write & Stop and require human decision & Misclassification of effect class \\
+Explicitly prohibited effect & Deterministic denial & Incomplete prohibited-effect catalog \\
+Child requests parent-absent right & Reject delegation (monotonicity) & Parent contract may itself be over-broad \\
+Receipt payload mutation & Digest/signature replay failure & Host can delete evidence unless externally anchored \\
+Broken chain pointer & Replay failure & Retained head/root still matters \\
+Model pressure or prompt urgency & Zero effect on authority contract & Model may still produce suboptimal proposals \\
+\bottomrule
+\end{tabular}
+\caption{\implemented Implemented controls and explicitly retained failure boundaries.}
+\label{tab:threat}
+\end{table*}
+
+\section{Threat Model and Failure Boundaries}
+\implemented The evaluated mechanism addresses a specific failure class: an agent proposes or attempts an effect outside its standing authority. It also checks monotonic child delegation and receipt-chain integrity (Table~\ref{tab:threat}).
+
+\section{Relation to Prior Work}
+\plausibledesign This work is complementary to agent-security benchmarks and formal tool-use safety research rather than a replacement for them. AgentDojo evaluates prompt-injection attacks over realistic tool-using tasks and emphasizes adversarial robustness~\cite{debenedetti2024agentdojo}. Agent Security Bench formalizes a broader attack/defense benchmark across tool-using agents~\cite{zhang2024asb}. AgentDyn extends prompt-injection evaluation toward dynamic, open-ended tasks~\cite{li2026agentdyn}. Doshi et al.\ propose deriving enforceable tool/data-flow constraints from hazard analysis and capability-enhanced MCP metadata~\cite{doshi2026verifiably}. NIST's 2026 AI Agent Standards Initiative similarly highlights secure interoperability, identity, and standards for autonomous agents~\cite{nist2026agentstandards}.
+
+\plausibledesign The narrower contribution here is operational: a deterministic authority boundary is placed between proposal and effect, with monotonic delegation and signed replayable evidence. The evaluation measures whether that boundary behaves as encoded, not whether an underlying model resists every attack.
+
+\section{Reproducibility}
+\implemented The public reference implementation is available at:
+\begin{center}
+\url{https://github.com/Aevion-ai/stop-and-ask-agent}
+\end{center}
+The repository documents the following reproduction commands:
+\begin{verbatim}
+python -m pytest -q tests
+python -m eval.tv_eval --output-dir eval/evidence
+python demo.py --decision deny --state-dir /tmp/demo
+\end{verbatim}
+\empirical The frozen evidence records 22 tests passing in 3.35s under Python 3.12. The benchmark artifact currently in the public repository reproduces the aggregate results in Table~\ref{tab:eval}.
+
+\section{Limitations}
+\donotclaim The implementation and results do not support claims of universal agent safety, proof against arbitrary host compromise, correctness of model reasoning, complete hazard coverage, durable signer identity, production multi-tenancy, or legal admissibility. The demo task is intentionally small, and the deterministic benchmark is project-authored. Independent reproduction, external task corpora, stronger adversarial evaluation, persistent hardware-backed signing, and realized-state witnesses are appropriate next steps.
+
+\section{Conclusion}
+\empirical In the evaluated fixtures, separating tool capability from effect authority prevents all 42 unauthorized attempted effects from committing while preserving completion of authorized effects and producing replay-verifiable receipts. \implemented The mechanism is implemented as deterministic code outside the model, with monotonic authority delegation and explicit human control at selected consequential boundaries. \donotclaim The result is not a general safety guarantee. It is evidence that a narrow, inspectable authority boundary can be tested independently from model intelligence and can emit artifacts suitable for later replay and audit.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

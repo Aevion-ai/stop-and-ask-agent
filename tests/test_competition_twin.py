@@ -36,7 +36,7 @@ def test_competition_twin_exposes_real_submission_gates():
 
 def test_ui_identifies_tinyverdicts_without_collapsing_vetproof():
     """Generic agent-control UI must not present VetProof as the product."""
-    html = Path(__file__).resolve().parents[1].joinpath("ui", "index.html").read_text()
+    html = Path(__file__).resolve().parents[1].joinpath("ui", "index.html").read_text(encoding="utf-8")
 
     assert "TinyVerdicts — Bounded Authority" in html
     assert "VetProof is a separate veteran-specific vertical" in html
