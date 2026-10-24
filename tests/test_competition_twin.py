@@ -15,7 +15,7 @@ from server import Handler
 
 
 def test_competition_twin_exposes_real_submission_gates():
-    """Removing an obligation or its authority boundary must fail this operational view."""
+    """Local artifacts pass; unverified external claims fail closed to UNKNOWN."""
     twin = app.competition_twin()
 
     assert twin["schema"] == "aevion.competition-twin/v1"
@@ -23,12 +23,12 @@ def test_competition_twin_exposes_real_submission_gates():
     gates = {gate["id"]: gate for gate in twin["gates"]}
     assert gates["SUBMISSION_SKELETON"]["verdict"] == "PASS"
     assert gates["ARCHITECTURE"]["verdict"] == "PASS"
-    assert gates["PUBLIC_REPOSITORY"]["verdict"] == "PASS"
+    assert gates["PUBLIC_REPOSITORY"]["verdict"] == "UNKNOWN"
     assert gates["PUBLIC_REPOSITORY"]["detail"] == "https://github.com/S-Leishman/stop-and-ask-agent"
-    assert gates["LIVE_BEDROCK_EXECUTION"]["verdict"] == "PASS"
+    assert gates["LIVE_BEDROCK_EXECUTION"]["verdict"] == "UNKNOWN"
     assert gates["LIVE_BEDROCK_EXECUTION"]["evidence"] == "eval/evidence/AFH-P3-BEDROCK-002.result.json"
-    assert gates["VIDEO_RECORDING"]["verdict"] == "PASS"
-    assert gates["VIDEO_RECORDING"]["evidence"] == "https://youtu.be/1OWtgAbUzJY"
+    assert gates["VIDEO_RECORDING"]["verdict"] == "UNKNOWN"
+    assert gates["VIDEO_RECORDING"]["evidence"] == "eval/external-gates.json#VIDEO_RECORDING"
     assert twin["next_required_effect"]["effect"] == "ATTACH_ARCHITECTURE_TO_DEVPOST"
     assert twin["next_required_effect"]["human_required"] is True
 
